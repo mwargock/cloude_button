@@ -39,7 +39,7 @@ where s.rok     = to_number(:P90_YEAR)
            )
       )
 union all
-select online.*
+select o.*
 from (
 -- >>>>>>>>>> zapytanie online (bez zmian) >>>>>>>>>>
 select 
@@ -285,7 +285,7 @@ proj.COST_CENTRE,projekt_null.COST_CENTRE,
 proj.CODE,projekt_null.CODE,
 proj.ENTITY,projekt_null.ENTITY
 -- <<<<<<<<<< koniec zapytania online <<<<<<<<<<
-) online
+) o
 -- gałąź online działa tylko gdy NIE ma zrzutu (Oracle sprawdza to raz, na starcie)
 where not exists (
     select 1
