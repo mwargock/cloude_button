@@ -3,7 +3,7 @@
 --
 --    Przycisk CORRECT_2 (obecny)      -> widoczny gdy NIE ma zrzutu
 --    Przycisk CORRECT_ZRZUT (nowy)    -> widoczny gdy JEST zrzut,
---                                        otwiera page 91 (Interactive Grid
+--                                        otwiera page 96 (Interactive Grid
 --                                        na danych zrzutu: edycja + dodanie
 --                                        wiersza KOREKTA)
 -- =====================================================================
@@ -84,10 +84,10 @@ select 1
 --   Label:  Korekta w zrzucie        Icon: fa-lock
 --   Region: Koszty noclegów pracowniczych od 01.2025
 --   Slot:   Right of Interactive Report Search Bar
---   Action: Redirect to Page in this Application -> Page 91
---           Set Items: P91_YEAR = &P90_YEAR.   P91_MONTH = &P90_MONTH.
---                      P91_SPOLKA = &P90_SPOLKA.
---           Clear Cache: 91
+--   Action: Redirect to Page in this Application -> Page 96
+--           Set Items: P96_YEAR = &P90_YEAR.   P96_MONTH = &P90_MONTH.
+--                      P96_SPOLKA = &P90_SPOLKA.
+--           Clear Cache: 96
 --
 -- UWAGA: warunek Server-side liczy się przy renderowaniu strony. Jeśli zmiana
 -- P90_YEAR / P90_MONTH nie przeładowuje strony, ustaw na tych itemach
@@ -95,9 +95,9 @@ select 1
 
 
 -- ---------------------------------------------------------------------
--- 6c. Page 91 "Korekta w zrzucie" (Create Page > Interactive Grid)
+-- 6c. Page 96 "Korekta w zrzucie" (Create Page > Interactive Grid)
 --     Page Mode: Modal Dialog, Editing Enabled: Yes, Primary Key: ID
---     Items (Hidden, Value Protected = No): P91_YEAR, P91_MONTH, P91_SPOLKA
+--     Items (Hidden, Value Protected = No): P96_YEAR, P96_MONTH, P96_SPOLKA
 --     Region source (SQL Query):
 -- ---------------------------------------------------------------------
 select id, snap_id, rok, miesiac, miesiac_rok,
@@ -106,22 +106,22 @@ select id, snap_id, rok, miesiac, miesiac_rok,
        kwota_dzien, info, kwota_zakwat, kwota_zakwat_umowa,
        korekta, suma, suma_oryg, zmodyfikowal, zmodyfikowano
   from fs_noclegi_snap
- where rok     = to_number(:P91_YEAR)
-   and miesiac = to_number(:P91_MONTH)
+ where rok     = to_number(:P96_YEAR)
+   and miesiac = to_number(:P96_MONTH)
    and (
-         :P91_SPOLKA = 'Wszystkie'
+         :P96_SPOLKA = 'Wszystkie'
          or spolka in (
-                select trim(regexp_substr(:P91_SPOLKA, '[^,]+', 1, level))
+                select trim(regexp_substr(:P96_SPOLKA, '[^,]+', 1, level))
                   from dual
-               connect by level <= regexp_count(:P91_SPOLKA, ',') + 1
+               connect by level <= regexp_count(:P96_SPOLKA, ',') + 1
             )
        )
---     Page Items to Submit: P91_YEAR,P91_MONTH,P91_SPOLKA
+--     Page Items to Submit: P96_YEAR,P96_MONTH,P96_SPOLKA
 --
 --     Kolumny IG:
 --       ID, SNAP_ID, MIESIAC_ROK         -> Hidden (trigger je uzupełni)
---       ROK     -> Hidden, Default: Item P91_YEAR
---       MIESIAC -> Hidden, Default: Item P91_MONTH
+--       ROK     -> Hidden, Default: Item P96_YEAR
+--       MIESIAC -> Hidden, Default: Item P96_MONTH
 --       KOREKTA -> Default: Static 'KOREKTA'
 --       SUMA_ORYG, ZMODYFIKOWAL, ZMODYFIKOWANO -> Display Only (Query Only = Yes)
 --       IMIE, NAZWISKO, NUM_DOK -> można zostawić puste przy dodawaniu:
@@ -136,5 +136,5 @@ select id, snap_id, rok, miesiac, miesiac_rok,
 --                     Selection = Region "Koszty noclegów pracowniczych od 01.2025"
 --       True 1: Refresh -> ten region IR
 --       True 2: Refresh -> region "Źródło danych"
---     (jeśli CORRECT_2 ma już taką DA - wystarczy ją zostawić, zadziała też dla page 91)
+--     (jeśli CORRECT_2 ma już taką DA - wystarczy ją zostawić, zadziała też dla page 96)
 -- ---------------------------------------------------------------------

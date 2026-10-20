@@ -11,7 +11,8 @@ Przy wyborze miesiąca raport pokazuje dane ze zrzutu (jeśli istnieje), a w prz
 | `sql/03_zrodlo_raportu.sql` | Nowe źródło regionu IR: zrzut **albo** online |
 | `sql/04_status_zrzutu.sql` | Opcjonalnie: usuwanie zrzutu |
 | `sql/05_info_zrodlo_danych.sql` | Pasek w GUI: ZRZUT / DANE BIEŻĄCE |
-| `sql/06_korekta_w_zrzucie.sql` | Korekta: w zrzucie (page 91, IG) albo online (page 24) |
+| `sql/06_korekta_w_zrzucie.sql` | Korekta: w zrzucie (page 96) albo online (page 24) |
+| `sql/07_page96_korekta_snap.sql` | Proces zapisu korekty do zrzutu na page 96 (kopia page 24) |
 
 ## Kroki w APEX
 
@@ -28,5 +29,5 @@ Przy wyborze miesiąca raport pokazuje dane ze zrzutu (jeśli istnieje), a w prz
 ## Uwagi
 - Zrzut zawsze obejmuje **wszystkie spółki**; filtr spółki działa przy odczycie.
 - Dla wierszy korekt (`KOREKTA`) online filtruje po `proj.ENTITY`, a zrzut po wyliczonej spółce (z projektem zastępczym) – korekty bez projektu są w zrzucie widoczne przy filtrze ich spółki.
-- Dla miesiąca ze zrzutem korekty robi się w samym zrzucie (page 91); ponowne kliknięcie „Zrób zrzut” nadpisuje też te ręczne zmiany.
+- Dla miesiąca ze zrzutem korekty robi się w samym zrzucie (page 96); ponowne kliknięcie „Zrób zrzut” nadpisuje też te ręczne zmiany.
 - Z zapytania usunięto tylko zakomentowane linie i wewnętrzne `ORDER BY` (nie wpływały na wynik).
