@@ -11,9 +11,10 @@ Przy wyborze miesiąca raport pokazuje dane ze zrzutu (jeśli istnieje), a w prz
 | `sql/03_zrodlo_raportu.sql` | Nowe źródło regionu IR: zrzut **albo** online |
 | `sql/04_status_zrzutu.sql` | Opcjonalnie: usuwanie zrzutu |
 | `sql/05_info_zrodlo_danych.sql` | Pasek w GUI: ZRZUT / DANE BIEŻĄCE |
-| `sql/06_korekta_w_zrzucie.sql` | Korekta: w zrzucie (page 96) albo online (page 24) |
-| `sql/07_page96_korekta_snap.sql` | Proces zapisu korekty do zrzutu na page 96 (kopia page 24) |
-| `sql/08_page96_edycja_wierszy.sql` | Page 96: edycja kwoty i projektu w wierszach zrzutu (IG) |
+| `sql/06_korekta_w_zrzucie.sql` | DDL: klucz `ID`, `SUMA_ORYG`, audyt (część 6a) – reszta nieaktualna, zastąpiona przez 08/09 |
+| `sql/07_page96_korekta_snap.sql` | (nieaktualne – page 96 zastąpiona przez 97) |
+| `sql/08_page96_edycja_wierszy.sql` | Trigger `FS_NOCLEGI_SNAP_BIU` (aktualna wersja, część 8a) |
+| `sql/09_page97_korekta_w_zrzucie.sql` | Page 97: edycja kwoty i projektu w wierszach zrzutu (IG) |
 
 ## Kroki w APEX
 
@@ -25,10 +26,11 @@ Przy wyborze miesiąca raport pokazuje dane ze zrzutu (jeśli istnieje), a w prz
    Server-side Condition *When Button Pressed = ZRZUT*.
 4. **Region IR** „od 01.2025”: Source → SQL Query → wklej `03_zrodlo_raportu.sql`
    (Page Items to Submit: `P90_YEAR,P90_MONTH,P90_SPOLKA`). Aliasy kolumn są takie same, więc kolumny/zapisane raporty IR zostają.
-5. (opcjonalnie) `04_status_zrzutu.sql` – item z informacją „ZRZUT z … / DANE BIEŻĄCE”, przycisk usuwania zrzutu, ukrycie „Korekta kwoty obciążenia” dla zamrożonych miesięcy.
+5. Pasek „ZRZUT / DANE BIEŻĄCE”: region Classic Report z `05_info_zrodlo_danych.sql`.
+6. Edycja zrzutu: DDL 6a z `06_…`, trigger z `08_…` (8a), page 97 wg `09_…`. Kolumna ACTIONS: Link → URL `#ACTIONS#`.
 
 ## Uwagi
 - Zrzut zawsze obejmuje **wszystkie spółki**; filtr spółki działa przy odczycie.
 - Dla wierszy korekt (`KOREKTA`) online filtruje po `proj.ENTITY`, a zrzut po wyliczonej spółce (z projektem zastępczym) – korekty bez projektu są w zrzucie widoczne przy filtrze ich spółki.
-- Dla miesiąca ze zrzutem korekty robi się w samym zrzucie (page 96); ponowne kliknięcie „Zrób zrzut” nadpisuje też te ręczne zmiany.
+- Dla miesiąca ze zrzutem korekty robi się w samym zrzucie (page 97); ponowne kliknięcie „Zrób zrzut” nadpisuje też te ręczne zmiany.
 - Z zapytania usunięto tylko zakomentowane linie i wewnętrzne `ORDER BY` (nie wpływały na wynik).
