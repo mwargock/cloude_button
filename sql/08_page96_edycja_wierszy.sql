@@ -38,6 +38,11 @@ begin
             end if;
             :new.miesiac_rok := nvl(:new.miesiac_rok, lpad(:new.miesiac, 2, '0') || '-' || :new.rok);
 
+            -- projekt wybrany ręcznie -> MPK i spółka z projektu
+            if :new.projekt is not null and :new.mpk is null then
+                ustaw_projekt;
+            end if;
+
             if :new.geid is not null and :new.nazwisko is null then
                 begin
                     select e.first_name, e.last_name, e.document_id,
