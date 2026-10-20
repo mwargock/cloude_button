@@ -13,6 +13,7 @@ Przy wyborze miesiąca raport pokazuje dane ze zrzutu (jeśli istnieje), a w prz
 | `sql/05_info_zrodlo_danych.sql` | Pasek w GUI: ZRZUT / DANE BIEŻĄCE |
 | `sql/06_korekta_w_zrzucie.sql` | Korekta: w zrzucie (page 96) albo online (page 24) |
 | `sql/07_page96_korekta_snap.sql` | Proces zapisu korekty do zrzutu na page 96 (kopia page 24) |
+| `sql/08_page96_edycja_wierszy.sql` | Page 96: edycja kwoty i projektu w wierszach zrzutu (IG) |
 
 ## Kroki w APEX
 
