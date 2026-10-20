@@ -5,6 +5,15 @@
 --    Aliasy kolumn są identyczne jak wcześniej, więc kolumny IR, zapisane
 --    raporty, linki i "actions" zostają bez zmian.
 --    Page Items to Submit regionu: P90_YEAR,P90_MONTH,P90_SPOLKA
+--
+--    Kolumny linków (IR > Columns):
+--      ACTIONS      -> Link do page 24 (jak dotąd)
+--                      Server-side Condition: No Rows returned
+--      ACTIONS_SNAP -> Link do page 96 (te same Set Items, ale P96_*)
+--                      Server-side Condition: Rows returned
+--      zapytanie warunku (to samo w obu):
+--        select 1 from fs_noclegi_snap_hdr
+--         where rok = to_number(:P90_YEAR) and miesiac = to_number(:P90_MONTH)
 -- =====================================================================
 select
     s.miesiac_rok        as "Miesiąc-Rok",
@@ -26,7 +35,8 @@ select
     s.kwota_zakwat_umowa as "KWOTA OBCIĄŻENIA (zakwaterowanie+umowa)",
     s.korekta            as "Korekta",
     s.suma               as "SUMA - koszt zakwaterowania",
-    null                 as actions
+    null                 as actions,
+    null                 as actions_snap
 from fs_noclegi_snap s
 where s.rok     = to_number(:P90_YEAR)
   and s.miesiac = to_number(:P90_MONTH)
@@ -39,7 +49,7 @@ where s.rok     = to_number(:P90_YEAR)
            )
       )
 union all
-select o.*
+select o.*, null as actions_snap
 from (
 -- >>>>>>>>>> zapytanie online (bez zmian) >>>>>>>>>>
 select 
