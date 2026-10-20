@@ -3,7 +3,7 @@
 --
 --    Przycisk CORRECT_2 (obecny)      -> widoczny gdy NIE ma zrzutu
 --    Przycisk CORRECT_ZRZUT (nowy)    -> widoczny gdy JEST zrzut,
---                                        otwiera page 96 (Interactive Grid
+--                                        otwiera page 96 (kopia page 24,
 --                                        na danych zrzutu: edycja + dodanie
 --                                        wiersza KOREKTA)
 -- =====================================================================
@@ -95,7 +95,8 @@ select 1
 
 
 -- ---------------------------------------------------------------------
--- 6c. Page 96 "Korekta w zrzucie" (Create Page > Interactive Grid)
+-- 6c. (ALTERNATYWA dla pliku 07) edycja całego zrzutu w Interactive Grid
+--     - jeśli page 96 jest kopią page 24, użyj pliku 07 zamiast tego punktu
 --     Page Mode: Modal Dialog, Editing Enabled: Yes, Primary Key: ID
 --     Items (Hidden, Value Protected = No): P96_YEAR, P96_MONTH, P96_SPOLKA
 --     Region source (SQL Query):
