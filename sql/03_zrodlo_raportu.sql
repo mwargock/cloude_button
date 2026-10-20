@@ -6,14 +6,10 @@
 --    raporty, linki i "actions" zostają bez zmian.
 --    Page Items to Submit regionu: P90_YEAR,P90_MONTH,P90_SPOLKA
 --
---    Kolumny linków (IR > Columns):
---      ACTIONS      -> Link do page 24 (jak dotąd)
---                      Server-side Condition: No Rows returned
---      ACTIONS_SNAP -> Link do page 96 (te same Set Items, ale P96_*)
---                      Server-side Condition: Rows returned
---      zapytanie warunku (to samo w obu):
---        select 1 from fs_noclegi_snap_hdr
---         where rok = to_number(:P90_YEAR) and miesiac = to_number(:P90_MONTH)
+--    Kolumna ACTIONS: gotowy URL liczony w SQL
+--      zrzut  -> page 96, online -> page 24
+--      IR > ACTIONS > Link > Target: Type = URL, URL = #ACTIONS#
+--      Server-side Condition: bez zmian (uprawnienie CAN_ADD_EMPLOYEES_EXTRA_CHARGE)
 -- =====================================================================
 select
     s.miesiac_rok        as "Miesiąc-Rok",
@@ -35,8 +31,12 @@ select
     s.kwota_zakwat_umowa as "KWOTA OBCIĄŻENIA (zakwaterowanie+umowa)",
     s.korekta            as "Korekta",
     s.suma               as "SUMA - koszt zakwaterowania",
-    null                 as actions,
-    null                 as actions_snap
+    apex_page.get_url(
+        p_page        => 96,
+        p_clear_cache => '96',
+        p_items       => 'P96_GEID,P96_YEAR,P96_MONTH',
+        p_values      => s.geid || ',' || :P90_YEAR || ',' || :P90_MONTH
+    )                    as actions
 from fs_noclegi_snap s
 where s.rok     = to_number(:P90_YEAR)
   and s.miesiac = to_number(:P90_MONTH)
@@ -49,7 +49,7 @@ where s.rok     = to_number(:P90_YEAR)
            )
       )
 union all
-select o.*, null as actions_snap
+select o.*
 from (
 -- >>>>>>>>>> zapytanie online (bez zmian) >>>>>>>>>>
 select 
@@ -72,7 +72,12 @@ case when a2.Info='Ucieczka' and a2.umowa_aktywna <= 7 then 0 else a2.zakwat end
 case when a2.Info='Ucieczka' and a2.umowa_aktywna <= 7 then 0 else a2.zakwat_umow end as "KWOTA OBCIĄŻENIA (zakwaterowanie+umowa)",
 a2.Korekta "Korekta",
 case when a2.Info='Ucieczka' and a2.umowa_aktywna <= 7 then 0 else nvl(a2.suma,0) end as "SUMA - koszt zakwaterowania",
-null as actions
+apex_page.get_url(
+    p_page        => 24,
+    p_clear_cache => '24',
+    p_items       => 'P24_GEID,P24_YEAR,P24_MONTH',
+    p_values      => a2.GEID || ',' || :P90_YEAR || ',' || :P90_MONTH
+) as actions
 from (
 select
 a1.GEID ,
@@ -265,7 +270,12 @@ case when proj.ENTITY is null then  projekt_null.ENTITY else proj.ENTITY end as 
 0 "KWOTA OBCIĄŻENIA (zakwaterowanie+umowa)",
 'KOREKTA' "Korekta",
 sum(ec.AMOUNT) "SUMA - koszt zakwaterowania",
-null as actions
+apex_page.get_url(
+    p_page        => 24,
+    p_clear_cache => '24',
+    p_items       => 'P24_GEID,P24_YEAR,P24_MONTH',
+    p_values      => ec.GEID || ',' || :P90_YEAR || ',' || :P90_MONTH
+) as actions
 from apt.FS_EMPLOYEES_EXTRA_CHARGE ec
 left join APT.EMPLOYEES prac on prac.geid=ec.GEID
 left join APT.PROJECTS proj on proj.id=ec.PROJECT_ID
