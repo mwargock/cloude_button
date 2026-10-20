@@ -10,6 +10,9 @@
 --      zrzut  -> page 104, online -> page 24
 --      IR > ACTIONS > Link > Target: Type = URL, URL = #ACTIONS#
 --      Server-side Condition: bez zmian (uprawnienie CAN_ADD_EMPLOYEES_EXTRA_CHARGE)
+--      Link Attributes: data-url="#ACTIONS#"
+--      Page 90 > CSS > Inline:  a[data-url=""] { display: none; }
+--        -> w zrzucie ikonę widzą tylko MWARGOCKI i WGLADKI (patrz plik 11)
 -- =====================================================================
 select
     s.miesiac_rok        as "Miesiąc-Rok",
@@ -31,12 +34,14 @@ select
     s.kwota_zakwat_umowa as "KWOTA OBCIĄŻENIA (zakwaterowanie+umowa)",
     s.korekta            as "Korekta",
     s.suma               as "SUMA - koszt zakwaterowania",
-    apex_page.get_url(
-        p_page        => 104,
-        p_clear_cache => '104',
-        p_items       => 'P104_GEID,P104_YEAR,P104_MONTH',
-        p_values      => s.geid || ',' || :P90_YEAR || ',' || :P90_MONTH
-    )                    as actions
+    case when upper(:APP_USER) in ('MWARGOCKI', 'WGLADKI') then
+        apex_page.get_url(
+            p_page        => 104,
+            p_clear_cache => '104',
+            p_items       => 'P104_GEID,P104_YEAR,P104_MONTH',
+            p_values      => s.geid || ',' || :P90_YEAR || ',' || :P90_MONTH
+        )
+    end                  as actions
 from fs_noclegi_snap s
 where s.rok     = to_number(:P90_YEAR)
   and s.miesiac = to_number(:P90_MONTH)
