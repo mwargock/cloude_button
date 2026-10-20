@@ -27,8 +27,4 @@ begin
        and miesiac = to_number(:P90_MONTH);
 end;
 
--- 4c. Przycisk "Korekta kwoty obciążenia" - korekty dodane PO zrzucie nie
---     będą widoczne (zrzut jest zamrożony). Najprościej ukryć go dla
---     zamrożonych miesięcy: Server-side Condition: No Rows returned
-select 1 from fs_noclegi_snap_hdr
-where rok = to_number(:P90_YEAR) and miesiac = to_number(:P90_MONTH);
+-- 4c. Korekty dla zamrożonych miesięcy: patrz 06_korekta_w_zrzucie.sql
