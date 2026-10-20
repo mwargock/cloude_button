@@ -7,7 +7,7 @@
 --    Page Items to Submit regionu: P90_YEAR,P90_MONTH,P90_SPOLKA
 --
 --    Kolumna ACTIONS: gotowy URL liczony w SQL
---      zrzut  -> page 97, online -> page 24
+--      zrzut  -> page 104, online -> page 24
 --      IR > ACTIONS > Link > Target: Type = URL, URL = #ACTIONS#
 --      Server-side Condition: bez zmian (uprawnienie CAN_ADD_EMPLOYEES_EXTRA_CHARGE)
 -- =====================================================================
@@ -32,9 +32,9 @@ select
     s.korekta            as "Korekta",
     s.suma               as "SUMA - koszt zakwaterowania",
     apex_page.get_url(
-        p_page        => 97,
-        p_clear_cache => '97',
-        p_items       => 'P97_GEID,P97_YEAR,P97_MONTH',
+        p_page        => 104,
+        p_clear_cache => '104',
+        p_items       => 'P104_GEID,P104_YEAR,P104_MONTH',
         p_values      => s.geid || ',' || :P90_YEAR || ',' || :P90_MONTH
     )                    as actions
 from fs_noclegi_snap s
