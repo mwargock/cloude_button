@@ -7,25 +7,10 @@ declare
     l_status_name      varchar2(100);        -- przyjazna nazwa statusu
     l_body             clob := :body_text;
 
-    -- Data z JSON: YYYY-MM-DD (ISO, także z czasem po literze T) lub DD.MM.YYYY
-    function json_date(p_path in varchar2) return date is
-        l_txt varchar2(100) := trim(apex_json.get_varchar2(p_path));
-    begin
-        if l_txt is null then
-            return null;
-        elsif regexp_like(l_txt, '^\d{4}-\d{2}-\d{2}') then
-            return to_date(substr(l_txt, 1, 10), 'YYYY-MM-DD');
-        elsif regexp_like(l_txt, '^\d{1,2}\.\d{1,2}\.\d{4}$') then
-            return to_date(l_txt, 'DD.MM.YYYY');
-        end if;
-        raise_application_error(-20001, 'Invalid date in ' || p_path || ': "' || l_txt || '" (expected YYYY-MM-DD or DD.MM.YYYY)');
-    exception
-        when others then
-            if sqlcode = -20001 then
-                raise;
-            end if;
-            raise_application_error(-20001, 'Invalid date in ' || p_path || ': "' || l_txt || '"');
-    end json_date;
+    l_birth_txt        varchar2(30);
+    l_training_txt     varchar2(30);
+    l_birth_date       date;
+    l_training_date    date;
 begin
     -- 1. Autoryzacja
     if :client_id is null or :client_secret is null then
@@ -48,6 +33,20 @@ begin
 
     -- 2. Parsowanie JSON
     apex_json.parse(p_source => l_body);
+
+    -- 2a. Daty - YYYY-MM-DD (np. 2000-01-01) albo DD.MM.YYYY (np. 01.01.2000)
+    l_birth_txt    := trim(apex_json.get_varchar2('birth_date'));
+    l_training_txt := trim(apex_json.get_varchar2('planned_training_date'));
+
+    l_birth_date := case
+                        when l_birth_txt like '____-__-__%' then to_date(substr(l_birth_txt, 1, 10), 'YYYY-MM-DD')
+                        when l_birth_txt is not null        then to_date(l_birth_txt, 'DD.MM.YYYY')
+                    end;
+
+    l_training_date := case
+                           when l_training_txt like '____-__-__%' then to_date(substr(l_training_txt, 1, 10), 'YYYY-MM-DD')
+                           when l_training_txt is not null        then to_date(l_training_txt, 'DD.MM.YYYY')
+                       end;
 
     -- 3. Sprawdzenie czy DOCUMENT_ID już istnieje
     begin
@@ -106,7 +105,7 @@ begin
         apex_json.get_varchar2('document_type'),
         apex_json.get_varchar2('document_id'),
         apex_json.get_varchar2('citizenship'),
-        json_date('birth_date'),
+        l_birth_date,
         apex_json.get_varchar2('email'),
         apex_json.get_varchar2('mobile'),
         apex_json.get_varchar2('mobile_local'),
@@ -121,7 +120,7 @@ begin
         to_number(apex_json.get_varchar2('recruiter_id')),   -- działa dla "777" i 777
         'CRMFAST',
         apex_json.get_varchar2('recruitation_project_id'),
-        json_date('planned_training_date'),
+        l_training_date,
         'Y'
     ) 
     returning geid into l_geid;
