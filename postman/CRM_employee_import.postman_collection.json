@@ -1,0 +1,167 @@
+{
+  "info": {
+    "name": "CRM – employee/import (ORDS)",
+    "description": "POST {{base_url}}/api/crm/employee/import\n\nAutoryzacja: nagłówki `client_id` i `client_secret` (parametry handlera ORDS, źródło HEADER). Body: JSON (odczytywany przez `:body_text`).\n\nOdpowiedzi:\n- `status: created` – nowy rekord, zwraca `geid`, `employee_status`, `status_code`\n- `status: exists` – `document_id` już istnieje\n- `status: error` – brak/niepoprawne dane logowania lub błąd SQL (`message`)\n\nUwaga: handler zawsze zwraca HTTP 200 – wynik rozpoznaje się po polu `status`.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "https://app.fast-service.com.pl/ords/apt" },
+    { "key": "client_id", "value": "" },
+    { "key": "client_secret", "value": "" },
+    { "key": "document_id", "value": "" }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Losowy document_id, jeśli nie podano własnego (żeby kolejne wywołania tworzyły nowy rekord)",
+          "if (!pm.collectionVariables.get('document_id')) {",
+          "    pm.collectionVariables.set('document_id', 'TEST' + Date.now().toString().slice(-8));",
+          "}"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Import pracownika (created)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const r = pm.response.json();",
+              "pm.test('status = created lub exists', () => pm.expect(r.status).to.be.oneOf(['created', 'exists']));",
+              "pm.test('zwrócono geid', () => pm.expect(r.geid).to.exist);",
+              "if (r.geid) pm.collectionVariables.set('last_geid', r.geid);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "client_id", "value": "{{client_id}}" },
+          { "key": "client_secret", "value": "{{client_secret}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"last_name\": \"Kowalski\",\n  \"first_name\": \"Jan\",\n  \"document_type\": \"PASZPORT\",\n  \"document_id\": \"{{document_id}}\",\n  \"citizenship\": \"UA\",\n  \"birth_date\": \"15.03.1990\",\n  \"email\": \"jan.kowalski@example.com\",\n  \"mobile\": \"+48500100200\",\n  \"mobile_local\": \"500100200\",\n  \"accept1\": \"Y\",\n  \"accept2\": \"Y\",\n  \"accept_electronic_communication\": \"Y\",\n  \"sex\": \"M\",\n  \"occupation\": \"INNY\",\n  \"is_in_pl\": \"N\",\n  \"stay_permit\": \"ZZZ\",\n  \"send_to_enova\": \"N\",\n  \"recruiter_id\": 1,\n  \"created_by\": \"BITRIX24\",\n  \"recruitation_project_id\": \"\",\n  \"planned_training_date\": \"10.11.2026\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/crm/employee/import",
+          "host": ["{{base_url}}"],
+          "path": ["api", "crm", "employee", "import"]
+        }
+      }
+    },
+    {
+      "name": "2. Ten sam document_id (exists)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const r = pm.response.json();",
+              "pm.test('status = exists', () => pm.expect(r.status).to.eql('exists'));",
+              "pm.test('ten sam geid co w kroku 1', () => pm.expect(String(r.geid)).to.eql(String(pm.collectionVariables.get('last_geid'))));",
+              "// wyczyść, żeby następne uruchomienie wygenerowało nowy document_id",
+              "pm.collectionVariables.set('document_id', '');"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "client_id", "value": "{{client_id}}" },
+          { "key": "client_secret", "value": "{{client_secret}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"document_id\": \"{{document_id}}\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/crm/employee/import",
+          "host": ["{{base_url}}"],
+          "path": ["api", "crm", "employee", "import"]
+        }
+      }
+    },
+    {
+      "name": "3. Brak client_id / client_secret (error)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const r = pm.response.json();",
+              "pm.test('status = error', () => pm.expect(r.status).to.eql('error'));",
+              "pm.test('message', () => pm.expect(r.message).to.eql('Missing client_id or client_secret'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"document_id\": \"X\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/crm/employee/import",
+          "host": ["{{base_url}}"],
+          "path": ["api", "crm", "employee", "import"]
+        }
+      }
+    },
+    {
+      "name": "4. Złe dane logowania (error)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const r = pm.response.json();",
+              "pm.test('status = error', () => pm.expect(r.status).to.eql('error'));",
+              "pm.test('message', () => pm.expect(r.message).to.eql('Invalid credentials'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "client_id", "value": "{{client_id}}" },
+          { "key": "client_secret", "value": "zle-haslo" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"document_id\": \"X\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/crm/employee/import",
+          "host": ["{{base_url}}"],
+          "path": ["api", "crm", "employee", "import"]
+        }
+      }
+    }
+  ]
+}
