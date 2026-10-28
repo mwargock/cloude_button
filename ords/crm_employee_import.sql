@@ -1,4 +1,4 @@
--- ORDS: moduł CRM, szablon employee/import, handler POST (PL/SQL)
+-- ORDS - moduł CRM, szablon employee/import, handler POST (PL/SQL)
 -- Daty (birth_date, planned_training_date) przyjmowane jako YYYY-MM-DD lub DD.MM.YYYY
 declare
     l_auth_result      varchar2(10);
@@ -7,7 +7,7 @@ declare
     l_status_name      varchar2(100);        -- przyjazna nazwa statusu
     l_body             clob := :body_text;
 
-    -- Data z JSON: YYYY-MM-DD (ISO, też z czasem: 2000-01-01T00:00:00) lub DD.MM.YYYY
+    -- Data z JSON: YYYY-MM-DD (ISO, także z czasem po literze T) lub DD.MM.YYYY
     function json_date(p_path in varchar2) return date is
         l_txt varchar2(100) := trim(apex_json.get_varchar2(p_path));
     begin
